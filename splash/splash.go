@@ -4,29 +4,40 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"github.com/FukuroNoOShiri/psyche/assets"
-	"github.com/FukuroNoOShiri/psyche/scene"
+	"github.com/FukuroNoOShiri/psyche/game"
 )
 
-type splash struct {
-	bg   color.RGBA
-	logo *ebiten.Image
+type Scene struct {
+	g        *game.Game
+	Next     game.Scene
+	bg       color.RGBA
+	logo     *ebiten.Image
+	ticks    int
+	maxTicks int
 }
 
-func New() (scene.Scene, error) {
+var _ game.Scene = &Scene{}
+
+func (s *Scene) Init(game *game.Game) error {
+	s.g = game
+
+	s.bg = color.RGBA{249, 239, 214, 0}
+
 	logo, err := assets.Fukuronooshiri()
 	if err != nil {
-		return splash{}, err
+		return err
 	}
+	s.logo = logo
 
-	return splash{
-		bg:   color.RGBA{249, 239, 214, 0},
-		logo: logo,
-	}, nil
+	s.maxTicks = ebiten.TPS() * 5
+
+	return nil
 }
 
-func (s splash) Draw(screen *ebiten.Image) {
+func (s *Scene) Draw(screen *ebiten.Image) {
 	screen.Fill(s.bg)
 
 	w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
@@ -38,6 +49,20 @@ func (s splash) Draw(screen *ebiten.Image) {
 	screen.DrawImage(s.logo, opt)
 }
 
-func (s splash) Update() error {
+func (s *Scene) Update() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		return s.g.SetScene(s.Next)
+	}
+
+	s.ticks++
+
+	if s.ticks == s.maxTicks {
+		return s.g.SetScene(s.Next)
+	}
+
 	return nil
+}
+
+func (s *Scene) Layout(_, _ int) (int, int) {
+	return 1920, 1080
 }

@@ -4,10 +4,10 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"github.com/FukuroNoOShiri/psyche/assets"
 	"github.com/FukuroNoOShiri/psyche/game"
+	"github.com/FukuroNoOShiri/psyche/utils"
 )
 
 type Scene struct {
@@ -50,7 +50,7 @@ func (s *Scene) Draw(screen *ebiten.Image) {
 }
 
 func (s *Scene) Update() error {
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+	if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyEscape); ok {
 		return s.g.SetScene(s.Next)
 	}
 

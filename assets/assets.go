@@ -6,16 +6,31 @@ import (
 	_ "image/jpeg"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 var (
 	//go:embed fukuronooshiri.jpg
 	fukuronooshiri []byte
+
+	//go:embed owl-sound-1.mp3
+	owlSound1 []byte
+
+	//go:embed owl-sound-2.mp3
+	owlSound2 []byte
 )
 
 func Fukuronooshiri() (*ebiten.Image, error) {
 	return bytesToImage(fukuronooshiri)
+}
+
+func OwlSound1() (*mp3.Stream, error) {
+	return mp3.DecodeWithoutResampling(bytes.NewReader(owlSound1))
+}
+
+func OwlSound2() (*mp3.Stream, error) {
+	return mp3.DecodeWithoutResampling(bytes.NewReader(owlSound2))
 }
 
 func bytesToImage(b []byte) (img *ebiten.Image, err error) {

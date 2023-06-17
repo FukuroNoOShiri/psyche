@@ -17,8 +17,10 @@ type Scene struct {
 	bg   color.RGBA
 	logo utils.ImageWithOptions
 
-	ticks    int
-	maxTicks int
+	ticks       int
+	sound1Ticks int
+	minTicks    int
+	maxTicks    int
 
 	fading         bool
 	fadingTicks    int
@@ -42,6 +44,8 @@ func (s *Scene) Init(game *game.Game) error {
 	logoOpts.GeoM.Translate(float64((1920-logoW)/2), float64((1080-logoH)/2))
 	s.logo = utils.ImageWithOptions{Image: logo, Options: logoOpts}
 
+	s.sound1Ticks = ebiten.TPS() / 2
+	s.minTicks = ebiten.TPS() * 3
 	s.maxTicks = ebiten.TPS() * 5
 	s.fadingMaxTicks = ebiten.TPS()
 
@@ -70,15 +74,47 @@ func (s *Scene) Update() error {
 		return nil
 	}
 
-	if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyEscape); ok {
-		s.fading = true
-		return nil
+	if s.ticks == s.sound1Ticks {
+		snd, err := assets.OwlSound1()
+		if err != nil {
+			return err
+		}
+
+		p, err := s.g.Audio.NewPlayer(snd)
+		if err != nil {
+			return err
+		}
+
+		p.Play()
+	}
+
+	if s.ticks >= s.minTicks {
+		if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyEscape); ok {
+			return s.fade()
+		}
 	}
 
 	if s.ticks++; s.ticks == s.maxTicks {
-		s.fading = true
-		return nil
+		return s.fade()
 	}
+
+	return nil
+}
+
+func (s *Scene) fade() error {
+	s.fading = true
+
+	snd, err := assets.OwlSound2()
+	if err != nil {
+		return err
+	}
+
+	p, err := s.g.Audio.NewPlayer(snd)
+	if err != nil {
+		return err
+	}
+
+	p.Play()
 
 	return nil
 }

@@ -2,10 +2,12 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
 type Game struct {
 	Scene
+	Audio *audio.Context
 }
 
 var _ ebiten.Game = &Game{}

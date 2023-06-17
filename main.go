@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 
 	"github.com/FukuroNoOShiri/psyche/game"
 	"github.com/FukuroNoOShiri/psyche/play"
@@ -19,7 +20,9 @@ func main() {
 
 	splashScene.Next = playScene
 
-	game := new(game.Game)
+	game := &game.Game{
+		Audio: audio.NewContext(48000),
+	}
 	if err := game.SetScene(splashScene); err != nil {
 		log.Fatal(err)
 	}

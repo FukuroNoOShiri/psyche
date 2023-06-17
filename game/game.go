@@ -11,6 +11,9 @@ type Game struct {
 var _ ebiten.Game = &Game{}
 
 func (g *Game) SetScene(s Scene) error {
+	if g.Scene != nil {
+		g.Scene.Dispose()
+	}
 	g.Scene = s
 	return g.Scene.Init(g)
 }

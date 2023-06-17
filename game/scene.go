@@ -9,5 +9,5 @@ type Scene interface {
 	Update() error
 	Draw(*ebiten.Image)
 	Layout(int, int) (int, int)
-	// FIXME Dispose
+	Dispose()
 }

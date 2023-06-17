@@ -27,6 +27,10 @@ func (s *Scene) Update() error {
 	return nil
 }
 
+func (s *Scene) Dispose() {
+
+}
+
 func (s *Scene) Layout(_, _ int) (int, int) {
 	return 1920, 1080
 }

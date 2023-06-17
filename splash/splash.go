@@ -11,8 +11,9 @@ import (
 )
 
 type Scene struct {
-	g    *game.Game
-	Next game.Scene
+	g      *game.Game
+	screen *ebiten.Image
+	Next   game.Scene
 
 	bg   color.RGBA
 	logo utils.ImageWithOptions
@@ -30,6 +31,7 @@ var _ game.Scene = &Scene{}
 
 func (s *Scene) Init(game *game.Game) error {
 	s.g = game
+	s.screen = ebiten.NewImage(1920, 1080)
 
 	s.bg = color.RGBA{249, 239, 214, 0}
 
@@ -52,14 +54,16 @@ func (s *Scene) Init(game *game.Game) error {
 }
 
 func (s *Scene) Draw(screen *ebiten.Image) {
-	screen.Fill(s.bg)
+	s.screen.Fill(s.bg)
 
-	s.logo.Draw(screen)
+	s.logo.Draw(s.screen)
 
 	if s.fading {
 		s.fadingOverlay.Image.Fill(color.RGBA{0, 0, 0, uint8(s.fadingTicks * 255 / s.fadingMaxTicks)})
-		s.fadingOverlay.Draw(screen)
+		s.fadingOverlay.Draw(s.screen)
 	}
+
+	screen.DrawImage(s.screen, nil)
 }
 
 func (s *Scene) Update() error {

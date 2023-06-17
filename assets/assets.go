@@ -8,6 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 )
 
 var (
@@ -19,6 +21,9 @@ var (
 
 	//go:embed owl-sound-2.mp3
 	owlSound2 []byte
+
+	//go:embed subscriber.otf
+	subscriber []byte
 )
 
 func Fukuronooshiri() (*ebiten.Image, error) {
@@ -31,6 +36,10 @@ func OwlSound1() (*mp3.Stream, error) {
 
 func OwlSound2() (*mp3.Stream, error) {
 	return mp3.DecodeWithoutResampling(bytes.NewReader(owlSound2))
+}
+
+func Subscriber() (*sfnt.Font, error) {
+	return opentype.Parse(subscriber)
 }
 
 func bytesToImage(b []byte) (img *ebiten.Image, err error) {

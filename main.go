@@ -9,6 +9,7 @@ import (
 	"github.com/FukuroNoOShiri/psyche/game"
 	"github.com/FukuroNoOShiri/psyche/play"
 	"github.com/FukuroNoOShiri/psyche/splash"
+	"github.com/FukuroNoOShiri/psyche/title"
 )
 
 func main() {
@@ -16,9 +17,11 @@ func main() {
 	ebiten.SetWindowTitle("Psyché")
 
 	splashScene := &splash.Scene{}
+	titleScene := &title.Scene{}
 	playScene := &play.Scene{}
 
-	splashScene.Next = playScene
+	splashScene.Next = titleScene
+	titleScene.Next = playScene
 
 	game := &game.Game{
 		Audio: audio.NewContext(48000),

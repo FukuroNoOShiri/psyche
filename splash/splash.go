@@ -11,12 +11,19 @@ import (
 )
 
 type Scene struct {
-	g        *game.Game
-	Next     game.Scene
-	bg       color.RGBA
-	logo     *ebiten.Image
+	g    *game.Game
+	Next game.Scene
+
+	bg   color.RGBA
+	logo utils.ImageWithOptions
+
 	ticks    int
 	maxTicks int
+
+	fading         bool
+	fadingTicks    int
+	fadingMaxTicks int
+	fadingOverlay  utils.ImageWithOptions
 }
 
 var _ game.Scene = &Scene{}
@@ -30,9 +37,16 @@ func (s *Scene) Init(game *game.Game) error {
 	if err != nil {
 		return err
 	}
-	s.logo = logo
+	logoW, logoH := logo.Bounds().Dx(), logo.Bounds().Dy()
+	logoOpts := &ebiten.DrawImageOptions{}
+	logoOpts.GeoM.Translate(float64((1920-logoW)/2), float64((1080-logoH)/2))
+	s.logo = utils.ImageWithOptions{Image: logo, Options: logoOpts}
 
 	s.maxTicks = ebiten.TPS() * 5
+	s.fadingMaxTicks = ebiten.TPS()
+
+	fadingOverlayOpts := &ebiten.DrawImageOptions{}
+	s.fadingOverlay = utils.ImageWithOptions{Image: ebiten.NewImage(1920, 1080), Options: fadingOverlayOpts}
 
 	return nil
 }
@@ -40,24 +54,30 @@ func (s *Scene) Init(game *game.Game) error {
 func (s *Scene) Draw(screen *ebiten.Image) {
 	screen.Fill(s.bg)
 
-	w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
-	lw, lh := s.logo.Bounds().Dx(), s.logo.Bounds().Dy()
+	s.logo.Draw(screen)
 
-	opt := &ebiten.DrawImageOptions{}
-	opt.GeoM.Translate(float64((w-lw)/2), float64((h-lh)/2))
-
-	screen.DrawImage(s.logo, opt)
+	if s.fading {
+		s.fadingOverlay.Image.Fill(color.RGBA{0, 0, 0, uint8(s.fadingTicks * 255 / s.fadingMaxTicks)})
+		s.fadingOverlay.Draw(screen)
+	}
 }
 
 func (s *Scene) Update() error {
-	if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyEscape); ok {
-		return s.g.SetScene(s.Next)
+	if s.fading {
+		if s.fadingTicks++; s.fadingTicks == s.fadingMaxTicks {
+			return s.g.SetScene(s.Next)
+		}
+		return nil
 	}
 
-	s.ticks++
+	if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyEscape); ok {
+		s.fading = true
+		return nil
+	}
 
-	if s.ticks == s.maxTicks {
-		return s.g.SetScene(s.Next)
+	if s.ticks++; s.ticks == s.maxTicks {
+		s.fading = true
+		return nil
 	}
 
 	return nil

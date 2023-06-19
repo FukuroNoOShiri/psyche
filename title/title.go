@@ -27,11 +27,7 @@ var _ game.Scene = &Scene{}
 func (s *Scene) Init(game *game.Game) error {
 	s.g = game
 
-	font, err := assets.Subscriber()
-	if err != nil {
-		return err
-	}
-	face, err := opentype.NewFace(font, &opentype.FaceOptions{
+	face, err := assets.SrirachaRegular(&opentype.FaceOptions{
 		DPI:  72,
 		Size: 120,
 	})

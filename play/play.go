@@ -18,6 +18,7 @@ type Scene struct {
 
 	player     *resolv.Object
 	dx         float64
+	dy         float64
 	facingLeft bool
 
 	idleImg          *utils.ImageWithOptions
@@ -30,10 +31,14 @@ func (s *Scene) Init(game *game.Game) error {
 	s.g = game
 
 	s.space = resolv.NewSpace(1920, 1080, 16, 16)
-	s.space.Add(resolv.NewObject(0, 1080-100, 1920, 100))
 
-	s.player = resolv.NewObject(200, 1080-200, 95, 100)
+	s.space.Add(resolv.NewObject(0, 1080-100, 1920, 100, "platform"))
+	s.space.Add(resolv.NewObject(0, 0, 16, 1080, "wall"))
+
+	s.player = resolv.NewObject(200, 1080-300, 95, 100)
 	s.space.Add(s.player)
+
+	s.dy = 5
 
 	img, err := assets.Idle()
 	if err != nil {
@@ -81,6 +86,18 @@ func (s *Scene) Update() error {
 		s.facingLeft = false
 	} else {
 		s.dx = 0
+	}
+
+	if collision := s.player.Check(s.dx, 0, "wall"); collision != nil {
+		s.player.X += collision.ContactWithObject(collision.Objects[0]).X()
+	} else {
+		s.player.X += s.dx
+	}
+
+	if collision := s.player.Check(0, s.dy, "platform"); collision != nil {
+		s.player.Y += collision.ContactWithObject(collision.Objects[0]).Y()
+	} else {
+		s.player.Y += s.dy
 	}
 
 	s.player.X += s.dx

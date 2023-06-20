@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	_ "image/jpeg"
+	_ "image/png"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -28,6 +29,11 @@ var (
 	srirachaRegular         []byte
 	srirachaRegularFont     *sfnt.Font
 	loadSrirachaRegularFont sync.Once
+
+	//go:embed Idle.png
+	idle     []byte
+	loadIdle sync.Once
+	idleImg  *ebiten.Image
 )
 
 func Fukuronooshiri() (*ebiten.Image, error) {
@@ -51,6 +57,19 @@ func SrirachaRegular(opts *opentype.FaceOptions) (face font.Face, err error) {
 	}
 
 	face, err = opentype.NewFace(srirachaRegularFont, opts)
+	return
+}
+
+func Idle() (img *ebiten.Image, err error) {
+	loadIdle.Do(func() {
+		idleImg, err = bytesToImage(idle)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	img = idleImg
+
 	return
 }
 

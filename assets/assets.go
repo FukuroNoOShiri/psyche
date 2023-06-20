@@ -34,6 +34,11 @@ var (
 	idle     []byte
 	loadIdle sync.Once
 	idleImg  *ebiten.Image
+
+	//go:embed greenPlatform.png
+	greenPlatform     []byte
+	loadGreenPlatform sync.Once
+	greenPlatformImg  *ebiten.Image
 )
 
 func Fukuronooshiri() (*ebiten.Image, error) {
@@ -69,6 +74,19 @@ func Idle() (img *ebiten.Image, err error) {
 	}
 
 	img = idleImg
+
+	return
+}
+
+func GreenPlatform() (img *ebiten.Image, err error) {
+	loadGreenPlatform.Do(func() {
+		greenPlatformImg, err = bytesToImage(greenPlatform)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	img = greenPlatformImg
 
 	return
 }

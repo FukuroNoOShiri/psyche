@@ -4,11 +4,11 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/solarlune/resolv"
 
 	"github.com/FukuroNoOShiri/psyche/assets"
 	"github.com/FukuroNoOShiri/psyche/game"
+	"github.com/FukuroNoOShiri/psyche/utils"
 )
 
 type Scene struct {
@@ -20,7 +20,8 @@ type Scene struct {
 	dx         float64
 	facingLeft bool
 
-	idleImg *ebiten.Image
+	idleImg          *utils.ImageWithOptions
+	greenPlatformImg *utils.ImageWithOptions
 }
 
 var _ game.Scene = &Scene{}
@@ -38,7 +39,20 @@ func (s *Scene) Init(game *game.Game) error {
 	if err != nil {
 		return err
 	}
-	s.idleImg = img
+	s.idleImg = &utils.ImageWithOptions{
+		Image:   img,
+		Options: &ebiten.DrawImageOptions{},
+	}
+
+	img, err = assets.GreenPlatform()
+	if err != nil {
+		return err
+	}
+	s.greenPlatformImg = &utils.ImageWithOptions{
+		Image:   img,
+		Options: &ebiten.DrawImageOptions{},
+	}
+	s.greenPlatformImg.Options.GeoM.Translate(0, 1080-100)
 
 	return nil
 }
@@ -46,31 +60,27 @@ func (s *Scene) Init(game *game.Game) error {
 func (s *Scene) Draw(screen *ebiten.Image) {
 	screen.Fill(color.Black)
 
-	opts := &ebiten.DrawImageOptions{}
+	s.idleImg.Options.GeoM.Reset()
 	if s.facingLeft {
-		opts.GeoM.Scale(-1, 1)
-		opts.GeoM.Translate(95, 0)
+		s.idleImg.Options.GeoM.Scale(-1, 1)
+		s.idleImg.Options.GeoM.Translate(95, 0)
 	}
-	opts.GeoM.Translate(s.player.X, s.player.Y)
-	screen.DrawImage(s.idleImg, opts)
+	s.idleImg.Options.GeoM.Translate(s.player.X, s.player.Y)
+	s.idleImg.Draw(screen)
+
+	s.greenPlatformImg.Draw(screen)
 }
 
 func (s *Scene) Update() error {
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyRight) {
-		s.dx = 5.0
-		s.facingLeft = false
-	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyRight) {
-		s.dx = 0.0
-	}
-
-	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
+	if l, r := ebiten.IsKeyPressed(ebiten.KeyLeft), ebiten.IsKeyPressed(ebiten.KeyRight); l && !r {
 		s.dx = -5.0
 		s.facingLeft = true
-	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyLeft) {
-		s.dx = 0.0
+	} else if r && !l {
+		s.dx = 5.0
+		s.facingLeft = false
+	} else {
+		s.dx = 0
 	}
 
 	s.player.X += s.dx

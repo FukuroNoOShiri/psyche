@@ -26,7 +26,7 @@ func main() {
 	game := &game.Game{
 		Audio: audio.NewContext(48000),
 	}
-	if err := game.SetScene(playScene); err != nil {
+	if err := game.SetScene(splashScene); err != nil {
 		log.Fatal(err)
 	}
 

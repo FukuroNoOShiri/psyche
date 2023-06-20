@@ -35,10 +35,19 @@ var (
 	loadIdle sync.Once
 	idleImg  *ebiten.Image
 
-	//go:embed greenPlatform.png
-	greenPlatform     []byte
-	loadGreenPlatform sync.Once
-	greenPlatformImg  *ebiten.Image
+	//go:embed GreenPlatform1-grass.png
+	greenPlatformGrass  []byte
+	loadGreenPlatformFg sync.Once
+	greenPlatformFg     *ebiten.Image
+
+	//go:embed GreenPlatform1-sky.png
+	greenPlatformSky []byte
+	//go:embed GreenPlatform1-clouds.png
+	greenPlatformClouds []byte
+	//go:embed GreenPlatform1-trees.png
+	greenPlatformTrees  []byte
+	loadGreenPlatformBg sync.Once
+	greenPlatformBg     *ebiten.Image
 )
 
 func Fukuronooshiri() (*ebiten.Image, error) {
@@ -78,15 +87,48 @@ func Idle() (img *ebiten.Image, err error) {
 	return
 }
 
-func GreenPlatform() (img *ebiten.Image, err error) {
-	loadGreenPlatform.Do(func() {
-		greenPlatformImg, err = bytesToImage(greenPlatform)
+func GreenPlatformFg() (img *ebiten.Image, err error) {
+	loadGreenPlatformFg.Do(func() {
+		greenPlatformFg, err = bytesToImage(greenPlatformGrass)
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	img = greenPlatformImg
+	img = greenPlatformFg
+
+	return
+}
+
+func GreenPlatformBg() (img *ebiten.Image, err error) {
+	loadGreenPlatformBg.Do(func() {
+		greenPlatformBg = ebiten.NewImage(1920, 1080)
+
+		var img *ebiten.Image
+
+		img, err = bytesToImage(greenPlatformSky)
+		if err != nil {
+			return
+		}
+		greenPlatformBg.DrawImage(img, nil)
+
+		img, err = bytesToImage(greenPlatformClouds)
+		if err != nil {
+			return
+		}
+		greenPlatformBg.DrawImage(img, nil)
+
+		img, err = bytesToImage(greenPlatformTrees)
+		if err != nil {
+			return
+		}
+		greenPlatformBg.DrawImage(img, nil)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	img = greenPlatformBg
 
 	return
 }

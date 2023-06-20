@@ -1,8 +1,6 @@
 package play
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 
@@ -23,6 +21,7 @@ type Scene struct {
 
 	idleImg          *utils.ImageWithOptions
 	greenPlatformImg *utils.ImageWithOptions
+	bg               *utils.ImageWithOptions
 }
 
 var _ game.Scene = &Scene{}
@@ -32,10 +31,10 @@ func (s *Scene) Init(game *game.Game) error {
 
 	s.space = resolv.NewSpace(1920, 1080, 16, 16)
 
-	s.space.Add(resolv.NewObject(0, 1080-100, 1920, 100, "platform"))
+	s.space.Add(resolv.NewObject(0, 1080-184, 1920, 100, "platform"))
 	s.space.Add(resolv.NewObject(0, 0, 16, 1080, "wall"))
 
-	s.player = resolv.NewObject(200, 1080-300, 95, 100)
+	s.player = resolv.NewObject(200, 1080-400, 95, 100)
 	s.space.Add(s.player)
 
 	s.dy = 5
@@ -49,21 +48,27 @@ func (s *Scene) Init(game *game.Game) error {
 		Options: &ebiten.DrawImageOptions{},
 	}
 
-	img, err = assets.GreenPlatform()
+	img, err = assets.GreenPlatformFg()
 	if err != nil {
 		return err
 	}
 	s.greenPlatformImg = &utils.ImageWithOptions{
-		Image:   img,
-		Options: &ebiten.DrawImageOptions{},
+		Image: img,
 	}
-	s.greenPlatformImg.Options.GeoM.Translate(0, 1080-100)
+
+	img, err = assets.GreenPlatformBg()
+	if err != nil {
+		return err
+	}
+	s.bg = &utils.ImageWithOptions{
+		Image: img,
+	}
 
 	return nil
 }
 
 func (s *Scene) Draw(screen *ebiten.Image) {
-	screen.Fill(color.Black)
+	s.bg.Draw(screen)
 
 	s.idleImg.Options.GeoM.Reset()
 	if s.facingLeft {

@@ -9,6 +9,13 @@ import (
 	"github.com/FukuroNoOShiri/psyche/utils"
 )
 
+const (
+	fallSpeed float64 = 5
+
+	jumpSpeed    float64 = 10
+	maxJumpTicks int     = 10
+)
+
 type Scene struct {
 	g *game.Game
 
@@ -18,6 +25,8 @@ type Scene struct {
 	dx         float64
 	dy         float64
 	facingLeft bool
+	jumping    bool
+	jumpTicks  int
 
 	idleImg          *utils.ImageWithOptions
 	greenPlatformImg *utils.ImageWithOptions
@@ -37,7 +46,7 @@ func (s *Scene) Init(game *game.Game) error {
 	s.player = resolv.NewObject(200, 1080-400, 95, 100)
 	s.space.Add(s.player)
 
-	s.dy = 5
+	s.dy = fallSpeed
 
 	img, err := assets.Idle()
 	if err != nil {
@@ -99,15 +108,32 @@ func (s *Scene) Update() error {
 		s.player.X += s.dx
 	}
 
+	var onGround bool
 	if collision := s.player.Check(0, s.dy, "platform"); collision != nil {
 		s.player.Y += collision.ContactWithObject(collision.Objects[0]).Y()
+		onGround = true
 	} else {
 		s.player.Y += s.dy
+	}
+
+	if onGround {
+		if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeyArrowUp, ebiten.KeySpace); ok {
+			s.jumping = true
+			s.dy = -jumpSpeed
+		}
 	}
 
 	s.player.X += s.dx
 
 	s.player.Update()
+
+	if s.jumping {
+		if s.jumpTicks++; s.jumpTicks == maxJumpTicks {
+			s.jumping = false
+			s.jumpTicks = 0
+			s.dy = fallSpeed
+		}
+	}
 
 	return nil
 }

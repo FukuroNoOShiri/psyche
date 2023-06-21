@@ -28,6 +28,10 @@ func main() {
 				Name:  "skip-title",
 				Usage: "skips title screen",
 			},
+			&cli.BoolFlag{
+				Name:  "full-screen",
+				Usage: "starts in full screen mode",
+			},
 		},
 	}
 
@@ -38,7 +42,12 @@ func main() {
 
 func run(ctx *cli.Context) error {
 	ebiten.SetWindowSize(1280, 720)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Psyché")
+
+	if ctx.Bool("full-screen") {
+		ebiten.SetFullscreen(true)
+	}
 
 	playScene := &play.Scene{}
 	titleScene := &title.Scene{

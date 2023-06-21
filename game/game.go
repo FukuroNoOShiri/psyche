@@ -21,6 +21,11 @@ func (g *Game) Update() error {
 		os.Exit(0)
 	}
 
+	if inpututil.IsKeyJustPressed(ebiten.KeyF11) ||
+		inpututil.IsKeyJustPressed(ebiten.KeyEnter) && ebiten.IsKeyPressed(ebiten.KeyControlLeft) {
+		ebiten.SetFullscreen(!ebiten.IsFullscreen())
+	}
+
 	return g.Scene.Update()
 }
 

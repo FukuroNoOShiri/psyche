@@ -67,7 +67,7 @@ func (s *Scene) Draw(screen *ebiten.Image) {
 }
 
 func (s *Scene) Update() error {
-	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) && !ebiten.IsKeyPressed(ebiten.KeyControlLeft) {
 		return s.g.SetScene(s.Next)
 	}
 

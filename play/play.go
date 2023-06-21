@@ -6,6 +6,7 @@ import (
 
 	"github.com/FukuroNoOShiri/psyche/assets"
 	"github.com/FukuroNoOShiri/psyche/game"
+	"github.com/FukuroNoOShiri/psyche/tasks"
 	"github.com/FukuroNoOShiri/psyche/utils"
 )
 
@@ -20,13 +21,13 @@ type Scene struct {
 	g *game.Game
 
 	space *resolv.Space
+	tasks tasks.Tasks
 
 	player     *resolv.Object
 	dx         float64
 	dy         float64
 	facingLeft bool
 	jumping    bool
-	jumpTicks  int
 
 	idleImg          *utils.ImageWithOptions
 	greenPlatformImg *utils.ImageWithOptions
@@ -91,6 +92,9 @@ func (s *Scene) Draw(screen *ebiten.Image) {
 }
 
 func (s *Scene) Update() error {
+	if err := s.tasks.Update(); err != nil {
+		return err
+	}
 
 	if l, r := ebiten.IsKeyPressed(ebiten.KeyLeft), ebiten.IsKeyPressed(ebiten.KeyRight); l && !r {
 		s.dx = -5.0
@@ -120,20 +124,17 @@ func (s *Scene) Update() error {
 		if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeyArrowUp, ebiten.KeySpace); ok {
 			s.jumping = true
 			s.dy = -jumpSpeed
+			s.tasks.Add(tasks.AfterTicks(maxJumpTicks, func() error {
+				s.jumping = false
+				s.dy = fallSpeed
+				return nil
+			}))
 		}
 	}
 
 	s.player.X += s.dx
 
 	s.player.Update()
-
-	if s.jumping {
-		if s.jumpTicks++; s.jumpTicks == maxJumpTicks {
-			s.jumping = false
-			s.jumpTicks = 0
-			s.dy = fallSpeed
-		}
-	}
 
 	return nil
 }

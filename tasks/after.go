@@ -20,6 +20,13 @@ func After(delay time.Duration, task func() error) Task {
 	}
 }
 
+func AfterTicks(ticks int, task func() error) Task {
+	return &AfterTask{
+		maxTicks: ticks,
+		task:     task,
+	}
+}
+
 func (t *AfterTask) Done() bool {
 	return t.done
 }

@@ -48,6 +48,9 @@ var (
 	greenPlatformTrees  []byte
 	loadGreenPlatformBg sync.Once
 	greenPlatformBg     *ebiten.Image
+
+	//go:embed Intro-psyche.png
+	introMask []byte
 )
 
 func Fukuronooshiri() (*ebiten.Image, error) {
@@ -87,7 +90,7 @@ func Idle() (img *ebiten.Image, err error) {
 	return
 }
 
-func GreenPlatformFg() (img *ebiten.Image, err error) {
+func GreenPlatform1Fg() (img *ebiten.Image, err error) {
 	loadGreenPlatformFg.Do(func() {
 		greenPlatformFg, err = bytesToImage(greenPlatformGrass)
 	})
@@ -100,7 +103,7 @@ func GreenPlatformFg() (img *ebiten.Image, err error) {
 	return
 }
 
-func GreenPlatformBg() (img *ebiten.Image, err error) {
+func GreenPlatform1Bg() (img *ebiten.Image, err error) {
 	loadGreenPlatformBg.Do(func() {
 		greenPlatformBg = ebiten.NewImage(1920, 1080)
 
@@ -131,6 +134,14 @@ func GreenPlatformBg() (img *ebiten.Image, err error) {
 	img = greenPlatformBg
 
 	return
+}
+
+func GreenPlatform1Sky() (*ebiten.Image, error) {
+	return bytesToImage(greenPlatformSky)
+}
+
+func IntroMask() (*ebiten.Image, error) {
+	return bytesToImage(introMask)
 }
 
 func bytesToImage(b []byte) (img *ebiten.Image, err error) {

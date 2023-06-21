@@ -9,6 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/FukuroNoOShiri/psyche/game"
+	"github.com/FukuroNoOShiri/psyche/intro"
 	"github.com/FukuroNoOShiri/psyche/play"
 	"github.com/FukuroNoOShiri/psyche/splash"
 	"github.com/FukuroNoOShiri/psyche/title"
@@ -20,13 +21,9 @@ func main() {
 		Usage:  "Play Psyché",
 		Action: run,
 		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:  "skip-splash",
-				Usage: "skips splash screen",
-			},
-			&cli.BoolFlag{
-				Name:  "skip-title",
-				Usage: "skips title screen",
+			&cli.StringFlag{
+				Name:  "skip-to",
+				Usage: "skips to specific scene",
 			},
 			&cli.BoolFlag{
 				Name:  "full-screen",
@@ -50,8 +47,11 @@ func run(ctx *cli.Context) error {
 	}
 
 	playScene := &play.Scene{}
-	titleScene := &title.Scene{
+	introScene := &intro.Scene{
 		Next: playScene,
+	}
+	titleScene := &title.Scene{
+		Next: introScene,
 	}
 	splashScene := &splash.Scene{
 		Next: titleScene,
@@ -59,14 +59,13 @@ func run(ctx *cli.Context) error {
 
 	var firstScene game.Scene = splashScene
 
-	if skipSplash, skipTitle := ctx.Bool("skip-splash"), ctx.Bool("skip-title"); skipSplash {
-		if skipTitle {
-			firstScene = playScene
-		} else {
-			firstScene = titleScene
-		}
-	} else if skipTitle {
-		splashScene.Next = playScene
+	switch ctx.String("skip-to") {
+	case "play":
+		firstScene = playScene
+	case "title":
+		firstScene = titleScene
+	case "intro":
+		firstScene = introScene
 	}
 
 	game := &game.Game{

@@ -71,7 +71,7 @@ func (s *Scene) Init(game *game.Game) error {
 	}
 	colorm.DrawImage(s.idleReversedImg.Image, s.idleImg.Image, c, nil)
 
-	img, err = assets.GreenPlatformFg()
+	img, err = assets.GreenPlatform1Fg()
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func (s *Scene) Init(game *game.Game) error {
 		Image: img,
 	}
 
-	img, err = assets.GreenPlatformBg()
+	img, err = assets.GreenPlatform1Bg()
 	if err != nil {
 		return err
 	}

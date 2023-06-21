@@ -2,6 +2,8 @@ package play
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/colorm"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/solarlune/resolv"
 
 	"github.com/FukuroNoOShiri/psyche/assets"
@@ -28,8 +30,10 @@ type Scene struct {
 	dy         float64
 	facingLeft bool
 	jumping    bool
+	reversed   bool
 
 	idleImg          *utils.ImageWithOptions
+	idleReversedImg  *utils.ImageWithOptions
 	greenPlatformImg *utils.ImageWithOptions
 	bg               *utils.ImageWithOptions
 }
@@ -58,6 +62,15 @@ func (s *Scene) Init(game *game.Game) error {
 		Options: &ebiten.DrawImageOptions{},
 	}
 
+	var c colorm.ColorM
+
+	c.ChangeHSV(-2.714, 1.44, 1)
+	s.idleReversedImg = &utils.ImageWithOptions{
+		Image:   ebiten.NewImage(s.idleImg.Image.Bounds().Dx(), s.idleImg.Image.Bounds().Dy()),
+		Options: &ebiten.DrawImageOptions{},
+	}
+	colorm.DrawImage(s.idleReversedImg.Image, s.idleImg.Image, c, nil)
+
 	img, err = assets.GreenPlatformFg()
 	if err != nil {
 		return err
@@ -80,13 +93,19 @@ func (s *Scene) Init(game *game.Game) error {
 func (s *Scene) Draw(screen *ebiten.Image) {
 	s.bg.Draw(screen)
 
-	s.idleImg.Options.GeoM.Reset()
-	if s.facingLeft {
-		s.idleImg.Options.GeoM.Scale(-1, 1)
-		s.idleImg.Options.GeoM.Translate(95, 0)
+	var playerImg *utils.ImageWithOptions
+	if s.reversed {
+		playerImg = s.idleReversedImg
+	} else {
+		playerImg = s.idleImg
 	}
-	s.idleImg.Options.GeoM.Translate(s.player.X, s.player.Y)
-	s.idleImg.Draw(screen)
+	playerImg.Options.GeoM.Reset()
+	if s.facingLeft {
+		playerImg.Options.GeoM.Scale(-1, 1)
+		playerImg.Options.GeoM.Translate(95, 0)
+	}
+	playerImg.Options.GeoM.Translate(s.player.X, s.player.Y)
+	playerImg.Draw(screen)
 
 	s.greenPlatformImg.Draw(screen)
 }
@@ -104,6 +123,10 @@ func (s *Scene) Update() error {
 		s.facingLeft = false
 	} else {
 		s.dx = 0
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		s.reversed = !s.reversed
 	}
 
 	if collision := s.player.Check(s.dx, 0, "wall"); collision != nil {

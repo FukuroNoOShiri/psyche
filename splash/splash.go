@@ -94,6 +94,7 @@ func (s *scene) Update() error {
 	if s.canSkip {
 		if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyEscape); ok {
 			s.tasks.Cancel("fade")
+			s.canSkip = false
 			if err := s.fade(); err != nil {
 				return err
 			}

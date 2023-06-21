@@ -13,7 +13,7 @@ import (
 	"github.com/FukuroNoOShiri/psyche/utils"
 )
 
-type Scene struct {
+type scene struct {
 	g    *game.Game
 	Next game.Scene
 
@@ -29,9 +29,10 @@ type Scene struct {
 	fadingProgression float64
 }
 
-var _ game.Scene = &Scene{}
+var Scene = &scene{}
+var _ game.Scene = Scene
 
-func (s *Scene) Init(game *game.Game) error {
+func (s *scene) Init(game *game.Game) error {
 	s.g = game
 
 	s.bg = color.RGBA{249, 239, 214, 0}
@@ -79,7 +80,7 @@ func (s *Scene) Init(game *game.Game) error {
 	return nil
 }
 
-func (s *Scene) Draw(screen *ebiten.Image) {
+func (s *scene) Draw(screen *ebiten.Image) {
 	screen.Fill(s.bg)
 	s.logo.Draw(screen)
 
@@ -89,7 +90,7 @@ func (s *Scene) Draw(screen *ebiten.Image) {
 	}
 }
 
-func (s *Scene) Update() error {
+func (s *scene) Update() error {
 	if s.canSkip {
 		if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyEscape); ok {
 			s.tasks.Cancel("fade")
@@ -106,7 +107,7 @@ func (s *Scene) Update() error {
 	return nil
 }
 
-func (s *Scene) fade() error {
+func (s *scene) fade() error {
 	s.tasks.Add(tasks.During(1*time.Second, func(progression float64) error {
 		if progression == 1 {
 			return s.g.SetScene(s.Next)
@@ -124,13 +125,13 @@ func (s *Scene) fade() error {
 	return nil
 }
 
-func (s *Scene) Dispose() {
+func (s *scene) Dispose() {
 	s.logo.Dispose()
 	s.fadingOverlay.Dispose()
 	s.sound1 = nil
 	s.sound2 = nil
 }
 
-func (s *Scene) Layout(_, _ int) (int, int) {
+func (s *scene) Layout(_, _ int) (int, int) {
 	return 1920, 1080
 }

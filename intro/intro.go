@@ -18,7 +18,7 @@ import (
 
 const beamScale = 4
 
-type Scene struct {
+type scene struct {
 	g     *game.Game
 	Next  game.Scene
 	tasks tasks.Tasks
@@ -34,9 +34,10 @@ type Scene struct {
 	visibleText string
 }
 
-var _ game.Scene = &Scene{}
+var Scene = &scene{}
+var _ game.Scene = Scene
 
-func (s *Scene) Init(game *game.Game) error {
+func (s *scene) Init(game *game.Game) error {
 	s.g = game
 
 	s.background = ebiten.NewImage(1920, 1080)
@@ -100,25 +101,25 @@ func (s *Scene) Init(game *game.Game) error {
 	return nil
 }
 
-func (s *Scene) Draw(screen *ebiten.Image) {
+func (s *scene) Draw(screen *ebiten.Image) {
 	screen.DrawImage(s.background, nil)
 	s.beam.Draw(screen)
 	text.Draw(screen, s.visibleText, s.textFace, s.textPos.X, s.textPos.Y, s.textColor)
 }
 
-func (s *Scene) Update() error {
+func (s *scene) Update() error {
 	return s.tasks.Update()
 }
 
-func (s *Scene) Dispose() {
+func (s *scene) Dispose() {
 	s.textFace = nil
 }
 
-func (s *Scene) Layout(_, _ int) (int, int) {
+func (s *scene) Layout(_, _ int) (int, int) {
 	return 1920, 1080
 }
 
-func (s *Scene) write(txt string) {
+func (s *scene) write(txt string) {
 	s.text = txt
 	s.visibleText = ""
 	bnd := text.BoundString(s.textFace, txt)
@@ -132,7 +133,7 @@ func (s *Scene) write(txt string) {
 	s.tasks.Add(tasks.AfterTicks(2, s.addLetter))
 }
 
-func (s *Scene) addLetter() error {
+func (s *scene) addLetter() error {
 	s.visibleText = s.text[:len(s.visibleText)+1]
 	if s.text != s.visibleText {
 		s.tasks.Add(tasks.AfterTicks(4, s.addLetter))

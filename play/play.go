@@ -19,7 +19,7 @@ const (
 	maxJumpTicks int     = 10
 )
 
-type Scene struct {
+type scene struct {
 	g *game.Game
 
 	space *resolv.Space
@@ -38,9 +38,10 @@ type Scene struct {
 	bg               *utils.ImageWithOptions
 }
 
-var _ game.Scene = &Scene{}
+var Scene = &scene{}
+var _ game.Scene = Scene
 
-func (s *Scene) Init(game *game.Game) error {
+func (s *scene) Init(game *game.Game) error {
 	s.g = game
 
 	s.space = resolv.NewSpace(1920, 1080, 16, 16)
@@ -90,7 +91,7 @@ func (s *Scene) Init(game *game.Game) error {
 	return nil
 }
 
-func (s *Scene) Draw(screen *ebiten.Image) {
+func (s *scene) Draw(screen *ebiten.Image) {
 	s.bg.Draw(screen)
 
 	var playerImg *utils.ImageWithOptions
@@ -110,7 +111,7 @@ func (s *Scene) Draw(screen *ebiten.Image) {
 	s.greenPlatformImg.Draw(screen)
 }
 
-func (s *Scene) Update() error {
+func (s *scene) Update() error {
 	if err := s.tasks.Update(); err != nil {
 		return err
 	}
@@ -162,10 +163,10 @@ func (s *Scene) Update() error {
 	return nil
 }
 
-func (s *Scene) Dispose() {
+func (s *scene) Dispose() {
 
 }
 
-func (s *Scene) Layout(_, _ int) (int, int) {
+func (s *scene) Layout(_, _ int) (int, int) {
 	return 1920, 1080
 }

@@ -46,26 +46,19 @@ func run(ctx *cli.Context) error {
 		ebiten.SetFullscreen(true)
 	}
 
-	playScene := &play.Scene{}
-	introScene := &intro.Scene{
-		Next: playScene,
-	}
-	titleScene := &title.Scene{
-		Next: introScene,
-	}
-	splashScene := &splash.Scene{
-		Next: titleScene,
-	}
+	intro.Scene.Next = play.Scene
+	title.Scene.Next = intro.Scene
+	splash.Scene.Next = title.Scene
 
-	var firstScene game.Scene = splashScene
+	var firstScene game.Scene = splash.Scene
 
 	switch ctx.String("skip-to") {
 	case "play":
-		firstScene = playScene
+		firstScene = play.Scene
 	case "title":
-		firstScene = titleScene
+		firstScene = title.Scene
 	case "intro":
-		firstScene = introScene
+		firstScene = intro.Scene
 	}
 
 	game := &game.Game{

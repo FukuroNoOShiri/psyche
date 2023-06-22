@@ -65,7 +65,7 @@ func (s *scene) Init(game *game.Game) error {
 
 	var c colorm.ColorM
 
-	c.ChangeHSV(-2.714, 1.44, 1)
+	c.ChangeHSV(-2.8, 1.5, 1)
 	s.idleReversedImg = &utils.ImageWithOptions{
 		Image:   ebiten.NewImage(s.idleImg.Image.Bounds().Dx(), s.idleImg.Image.Bounds().Dy()),
 		Options: &ebiten.DrawImageOptions{},

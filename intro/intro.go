@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
@@ -71,28 +72,24 @@ func (s *scene) Init() error {
 	s.textFace = face
 
 	game.Tasks.Add(tasks.After(2*time.Second, func() error {
-		s.write("My...")
-		return nil
-	}))
+		return s.write("My...")
+	}), "intro")
 
 	game.Tasks.Add(tasks.After(5*time.Second, func() error {
-		s.write("...name.")
-		return nil
-	}))
+		return s.write("...name.")
+	}), "intro")
 
 	game.Tasks.Add(tasks.After(10*time.Second, func() error {
-		s.write("I can't remember it...")
-		return nil
-	}))
+		return s.write("I can't remember it...")
+	}), "intro")
 
 	game.Tasks.Add(tasks.After(15*time.Second, func() error {
-		s.write("I lost my name!")
-		return nil
-	}))
+		return s.write("I lost my name!")
+	}), "intro")
 
 	game.Tasks.Add(tasks.After(20*time.Second, func() error {
 		return game.SetScene(s.Next)
-	}))
+	}), "intro")
 
 	return nil
 }
@@ -104,6 +101,11 @@ func (s *scene) Draw(screen *ebiten.Image) {
 }
 
 func (s *scene) Update() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		game.Tasks.Cancel("intro")
+		return game.SetScene(s.Next)
+	}
+
 	return nil
 }
 
@@ -111,7 +113,7 @@ func (s *scene) Dispose() {
 	s.textFace = nil
 }
 
-func (s *scene) write(txt string) {
+func (s *scene) write(txt string) error {
 	s.text = txt
 	s.visibleText = ""
 	bnd := text.BoundString(s.textFace, txt)
@@ -120,15 +122,15 @@ func (s *scene) write(txt string) {
 		Y: 960 + bnd.Dy(),
 	}
 	if txt == "" {
-		return
+		return nil
 	}
-	game.Tasks.Add(tasks.AfterTicks(2, s.addLetter))
+	return s.addLetter()
 }
 
 func (s *scene) addLetter() error {
 	s.visibleText = s.text[:len(s.visibleText)+1]
 	if s.text != s.visibleText {
-		game.Tasks.Add(tasks.AfterTicks(4, s.addLetter))
+		game.Tasks.Add(tasks.AfterTicks(4, s.addLetter), "intro")
 	}
 	return nil
 }

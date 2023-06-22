@@ -61,31 +61,37 @@ func (game) Layout(_, _ int) (int, int) {
 
 func SetScene(s Scene) error {
 	if scene == nil {
-		defer FadeIn(1 * time.Second)
+		defer FadeIn(1*time.Second, nil)
 		scene = s
 		return scene.Init()
 	}
 
-	FadeOut(1 * time.Second)
-	Tasks.Add(tasks.After(1*time.Second, func() error {
-		defer FadeIn(1 * time.Second)
+	FadeOut(1*time.Second, func() error {
+		defer FadeIn(1*time.Second, nil)
 		scene.Dispose()
 		scene = s
 		return scene.Init()
-	}))
+	})
+
 	return nil
 }
 
-func FadeOut(duration time.Duration) {
+func FadeOut(duration time.Duration, cb func() error) {
 	Tasks.Add(tasks.During(duration, func(progression float64) error {
 		fadeProgression = progression
+		if progression == 1 && cb != nil {
+			Tasks.Add(tasks.AfterTicks(1, cb))
+		}
 		return nil
 	}))
 }
 
-func FadeIn(duration time.Duration) {
+func FadeIn(duration time.Duration, cb func() error) {
 	Tasks.Add(tasks.During(duration, func(progression float64) error {
 		fadeProgression = 1 - progression
+		if progression == 1 && cb != nil {
+			return cb()
+		}
 		return nil
 	}))
 }

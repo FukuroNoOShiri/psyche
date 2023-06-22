@@ -5,9 +5,8 @@ import (
 )
 
 type Scene interface {
-	Init(*Game) error
+	Init() error
 	Update() error
 	Draw(*ebiten.Image)
-	Layout(int, int) (int, int)
 	Dispose()
 }

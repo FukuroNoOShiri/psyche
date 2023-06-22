@@ -15,7 +15,6 @@ import (
 )
 
 type scene struct {
-	g    *game.Game
 	Next game.Scene
 
 	textColor color.Color
@@ -30,9 +29,7 @@ type scene struct {
 var Scene = &scene{}
 var _ game.Scene = Scene
 
-func (s *scene) Init(game *game.Game) error {
-	s.g = game
-
+func (s *scene) Init() error {
 	s.textColor = color.RGBA{84, 137, 169, 0}
 
 	face, err := assets.FontFace("Sriracha-Regular.ttf", &opentype.FaceOptions{
@@ -69,15 +66,11 @@ func (s *scene) Draw(screen *ebiten.Image) {
 
 func (s *scene) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) && !ebiten.IsKeyPressed(ebiten.KeyControlLeft) {
-		return s.g.SetScene(s.Next)
+		return game.SetScene(s.Next)
 	}
 
 	return nil
 }
 
 func (s *scene) Dispose() {
-}
-
-func (s *scene) Layout(_, _ int) (int, int) {
-	return 1920, 1080
 }

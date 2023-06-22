@@ -19,9 +19,7 @@ import (
 const beamScale = 4
 
 type scene struct {
-	g     *game.Game
-	Next  game.Scene
-	tasks tasks.Tasks
+	Next game.Scene
 
 	background *ebiten.Image
 	beam       *utils.ImageWithOptions
@@ -37,9 +35,7 @@ type scene struct {
 var Scene = &scene{}
 var _ game.Scene = Scene
 
-func (s *scene) Init(game *game.Game) error {
-	s.g = game
-
+func (s *scene) Init() error {
 	s.background = ebiten.NewImage(1920, 1080)
 	img, err := assets.Image("GreenPlatform1-sky.png")
 	if err != nil {
@@ -74,28 +70,28 @@ func (s *scene) Init(game *game.Game) error {
 	}
 	s.textFace = face
 
-	s.tasks.Add(tasks.After(2*time.Second, func() error {
+	game.Tasks.Add(tasks.After(2*time.Second, func() error {
 		s.write("My...")
 		return nil
 	}))
 
-	s.tasks.Add(tasks.After(5*time.Second, func() error {
+	game.Tasks.Add(tasks.After(5*time.Second, func() error {
 		s.write("...name.")
 		return nil
 	}))
 
-	s.tasks.Add(tasks.After(10*time.Second, func() error {
+	game.Tasks.Add(tasks.After(10*time.Second, func() error {
 		s.write("I can't remember it...")
 		return nil
 	}))
 
-	s.tasks.Add(tasks.After(15*time.Second, func() error {
+	game.Tasks.Add(tasks.After(15*time.Second, func() error {
 		s.write("I lost my name!")
 		return nil
 	}))
 
-	s.tasks.Add(tasks.After(20*time.Second, func() error {
-		return s.g.SetScene(s.Next)
+	game.Tasks.Add(tasks.After(20*time.Second, func() error {
+		return game.SetScene(s.Next)
 	}))
 
 	return nil
@@ -108,15 +104,11 @@ func (s *scene) Draw(screen *ebiten.Image) {
 }
 
 func (s *scene) Update() error {
-	return s.tasks.Update()
+	return nil
 }
 
 func (s *scene) Dispose() {
 	s.textFace = nil
-}
-
-func (s *scene) Layout(_, _ int) (int, int) {
-	return 1920, 1080
 }
 
 func (s *scene) write(txt string) {
@@ -130,13 +122,13 @@ func (s *scene) write(txt string) {
 	if txt == "" {
 		return
 	}
-	s.tasks.Add(tasks.AfterTicks(2, s.addLetter))
+	game.Tasks.Add(tasks.AfterTicks(2, s.addLetter))
 }
 
 func (s *scene) addLetter() error {
 	s.visibleText = s.text[:len(s.visibleText)+1]
 	if s.text != s.visibleText {
-		s.tasks.Add(tasks.AfterTicks(4, s.addLetter))
+		game.Tasks.Add(tasks.AfterTicks(4, s.addLetter))
 	}
 	return nil
 }

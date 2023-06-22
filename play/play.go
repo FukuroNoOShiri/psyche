@@ -20,10 +20,7 @@ const (
 )
 
 type scene struct {
-	g *game.Game
-
 	space *resolv.Space
-	tasks tasks.Tasks
 
 	player     *resolv.Object
 	dx         float64
@@ -41,9 +38,7 @@ type scene struct {
 var Scene = &scene{}
 var _ game.Scene = Scene
 
-func (s *scene) Init(game *game.Game) error {
-	s.g = game
-
+func (s *scene) Init() error {
 	s.space = resolv.NewSpace(1920, 1080, 16, 16)
 
 	s.space.Add(resolv.NewObject(0, 1080-184, 1920, 100, "platform"))
@@ -123,10 +118,6 @@ func (s *scene) Draw(screen *ebiten.Image) {
 }
 
 func (s *scene) Update() error {
-	if err := s.tasks.Update(); err != nil {
-		return err
-	}
-
 	if l, r := ebiten.IsKeyPressed(ebiten.KeyLeft), ebiten.IsKeyPressed(ebiten.KeyRight); l && !r {
 		s.dx = -5.0
 		s.facingLeft = true
@@ -159,7 +150,7 @@ func (s *scene) Update() error {
 		if ok, _ := utils.IsSomeKeyJustPressed(ebiten.KeyArrowUp, ebiten.KeySpace); ok {
 			s.jumping = true
 			s.dy = -jumpSpeed
-			s.tasks.Add(tasks.AfterTicks(maxJumpTicks, func() error {
+			game.Tasks.Add(tasks.AfterTicks(maxJumpTicks, func() error {
 				s.jumping = false
 				s.dy = fallSpeed
 				return nil
@@ -175,9 +166,5 @@ func (s *scene) Update() error {
 }
 
 func (s *scene) Dispose() {
-
-}
-
-func (s *scene) Layout(_, _ int) (int, int) {
-	return 1920, 1080
+	// FIXME
 }

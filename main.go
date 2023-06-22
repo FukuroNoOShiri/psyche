@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/urfave/cli/v2"
 
 	"github.com/FukuroNoOShiri/psyche/game"
@@ -61,13 +60,9 @@ func run(ctx *cli.Context) error {
 		firstScene = intro.Scene
 	}
 
-	game := &game.Game{
-		Audio: audio.NewContext(48000),
-	}
-
 	if err := game.SetScene(firstScene); err != nil {
 		return err
 	}
 
-	return ebiten.RunGame(game)
+	return ebiten.RunGame(game.Game)
 }

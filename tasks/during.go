@@ -13,9 +13,9 @@ type DuringTask struct {
 	task     func(progression float64) error
 }
 
-func During(delay time.Duration, task func(progression float64) error) Task {
+func During(duration time.Duration, task func(progression float64) error) Task {
 	return &DuringTask{
-		maxTicks: int(delay.Seconds() * float64(ebiten.TPS())),
+		maxTicks: int(duration.Seconds() * float64(ebiten.TPS())),
 		task:     task,
 	}
 }

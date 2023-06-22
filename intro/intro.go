@@ -110,6 +110,8 @@ func (s *scene) Update() error {
 }
 
 func (s *scene) Dispose() {
+	s.background = nil
+	s.beam = nil
 	s.textFace = nil
 }
 

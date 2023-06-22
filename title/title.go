@@ -73,4 +73,6 @@ func (s *scene) Update() error {
 }
 
 func (s *scene) Dispose() {
+	s.titleFace = nil
+	s.startFace = nil
 }

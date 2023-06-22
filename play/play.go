@@ -166,5 +166,4 @@ func (s *scene) Update() error {
 }
 
 func (s *scene) Dispose() {
-	// FIXME
 }

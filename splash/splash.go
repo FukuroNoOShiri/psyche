@@ -17,7 +17,7 @@ type scene struct {
 	Next game.Scene
 
 	bg     color.RGBA
-	logo   utils.ImageWithOptions
+	logo   *utils.ImageWithOptions
 	sound1 *mp3.Stream
 	sound2 *mp3.Stream
 
@@ -37,7 +37,7 @@ func (s *scene) Init() error {
 	logoW, logoH := logo.Bounds().Dx(), logo.Bounds().Dy()
 	logoOpts := &ebiten.DrawImageOptions{}
 	logoOpts.GeoM.Translate(float64((1920-logoW)/2), float64((1080-logoH)/2))
-	s.logo = utils.ImageWithOptions{Image: logo, Options: logoOpts}
+	s.logo = &utils.ImageWithOptions{Image: logo, Options: logoOpts}
 
 	sound1, err := assets.Mp3Stream("owl-sound-1.mp3")
 	if err != nil {
@@ -100,7 +100,7 @@ func (s *scene) leave() error {
 }
 
 func (s *scene) Dispose() {
-	s.logo.Dispose()
+	s.logo = nil
 	s.sound1 = nil
 	s.sound2 = nil
 }

@@ -37,7 +37,7 @@ func (s *scene) Init(game *game.Game) error {
 
 	s.bg = color.RGBA{249, 239, 214, 0}
 
-	logo, err := assets.Fukuronooshiri()
+	logo, err := assets.Image("fukuronooshiri.jpg")
 	if err != nil {
 		return err
 	}
@@ -46,13 +46,13 @@ func (s *scene) Init(game *game.Game) error {
 	logoOpts.GeoM.Translate(float64((1920-logoW)/2), float64((1080-logoH)/2))
 	s.logo = utils.ImageWithOptions{Image: logo, Options: logoOpts}
 
-	sound1, err := assets.OwlSound1()
+	sound1, err := assets.Mp3Stream("owl-sound-1.mp3")
 	if err != nil {
 		return err
 	}
 	s.sound1 = sound1
 
-	sound2, err := assets.OwlSound2()
+	sound2, err := assets.Mp3Stream("owl-sound-2.mp3")
 	if err != nil {
 		return err
 	}

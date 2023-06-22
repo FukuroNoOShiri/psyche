@@ -35,7 +35,7 @@ func (s *scene) Init(game *game.Game) error {
 
 	s.textColor = color.RGBA{84, 137, 169, 0}
 
-	face, err := assets.SrirachaRegular(&opentype.FaceOptions{
+	face, err := assets.FontFace("Sriracha-Regular.ttf", &opentype.FaceOptions{
 		DPI:  72,
 		Size: 120,
 	})
@@ -46,7 +46,7 @@ func (s *scene) Init(game *game.Game) error {
 	titleBounds := text.BoundString(s.titleFace, "Psyché")
 	s.titlePos.X, s.titlePos.Y = (1920-titleBounds.Dx())/2, 400
 
-	face, err = assets.SrirachaRegular(&opentype.FaceOptions{
+	face, err = assets.FontFace("Sriracha-Regular.ttf", &opentype.FaceOptions{
 		DPI:  48,
 		Size: 120,
 	})

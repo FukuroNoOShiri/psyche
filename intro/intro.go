@@ -41,18 +41,18 @@ func (s *scene) Init(game *game.Game) error {
 	s.g = game
 
 	s.background = ebiten.NewImage(1920, 1080)
-	img, err := assets.GreenPlatform1Sky()
+	img, err := assets.Image("GreenPlatform1-sky.png")
 	if err != nil {
 		return err
 	}
 	s.background.DrawImage(img, nil)
-	img, err = assets.IntroMask()
+	img, err = assets.Image("Intro-psyche.png")
 	if err != nil {
 		return err
 	}
 	s.background.DrawImage(img, nil)
 
-	img, err = assets.Idle()
+	img, err = assets.Image("Idle.png")
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (s *scene) Init(game *game.Game) error {
 
 	s.textColor = color.RGBA{84, 137, 169, 0}
 
-	face, err := assets.SrirachaRegular(&opentype.FaceOptions{
+	face, err := assets.FontFace("Sriracha-Regular.ttf", &opentype.FaceOptions{
 		DPI:  36,
 		Size: 120,
 	})

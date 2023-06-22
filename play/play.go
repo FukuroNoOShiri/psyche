@@ -54,7 +54,7 @@ func (s *scene) Init(game *game.Game) error {
 
 	s.dy = fallSpeed
 
-	img, err := assets.Idle()
+	img, err := assets.Image("Idle.png")
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (s *scene) Init(game *game.Game) error {
 	}
 	colorm.DrawImage(s.idleReversedImg.Image, s.idleImg.Image, c, nil)
 
-	img, err = assets.GreenPlatform1Fg()
+	img, err = assets.Image("GreenPlatform1-grass.png")
 	if err != nil {
 		return err
 	}
@@ -80,13 +80,24 @@ func (s *scene) Init(game *game.Game) error {
 		Image: img,
 	}
 
-	img, err = assets.GreenPlatform1Bg()
+	s.bg = &utils.ImageWithOptions{
+		Image: ebiten.NewImage(1920, 1080),
+	}
+	img, err = assets.Image("GreenPlatform1-sky.png")
 	if err != nil {
 		return err
 	}
-	s.bg = &utils.ImageWithOptions{
-		Image: img,
+	s.bg.Image.DrawImage(img, nil)
+	img, err = assets.Image("GreenPlatform1-clouds.png")
+	if err != nil {
+		return err
 	}
+	s.bg.Image.DrawImage(img, nil)
+	img, err = assets.Image("GreenPlatform1-trees.png")
+	if err != nil {
+		return err
+	}
+	s.bg.Image.DrawImage(img, nil)
 
 	return nil
 }

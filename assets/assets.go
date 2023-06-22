@@ -2,149 +2,48 @@ package assets
 
 import (
 	"bytes"
-	_ "embed"
+	"embed"
 	_ "image/jpeg"
 	_ "image/png"
-	"sync"
+	"io/fs"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
-	"golang.org/x/image/font/sfnt"
 )
 
 var (
-	//go:embed fukuronooshiri.jpg
-	fukuronooshiri []byte
-
-	//go:embed owl-sound-1.mp3
-	owlSound1 []byte
-
-	//go:embed owl-sound-2.mp3
-	owlSound2 []byte
-
-	//go:embed Sriracha-Regular.ttf
-	srirachaRegular         []byte
-	srirachaRegularFont     *sfnt.Font
-	loadSrirachaRegularFont sync.Once
-
-	//go:embed Idle.png
-	idle     []byte
-	loadIdle sync.Once
-	idleImg  *ebiten.Image
-
-	//go:embed GreenPlatform1-grass.png
-	greenPlatformGrass  []byte
-	loadGreenPlatformFg sync.Once
-	greenPlatformFg     *ebiten.Image
-
-	//go:embed GreenPlatform1-sky.png
-	greenPlatformSky []byte
-	//go:embed GreenPlatform1-clouds.png
-	greenPlatformClouds []byte
-	//go:embed GreenPlatform1-trees.png
-	greenPlatformTrees  []byte
-	loadGreenPlatformBg sync.Once
-	greenPlatformBg     *ebiten.Image
-
-	//go:embed Intro-psyche.png
-	introMask []byte
+	//go:embed *.jpg *.png *.mp3 *.ttf
+	assets embed.FS
 )
 
-func Fukuronooshiri() (*ebiten.Image, error) {
-	return bytesToImage(fukuronooshiri)
-}
-
-func OwlSound1() (*mp3.Stream, error) {
-	return mp3.DecodeWithoutResampling(bytes.NewReader(owlSound1))
-}
-
-func OwlSound2() (*mp3.Stream, error) {
-	return mp3.DecodeWithoutResampling(bytes.NewReader(owlSound2))
-}
-
-func SrirachaRegular(opts *opentype.FaceOptions) (face font.Face, err error) {
-	loadSrirachaRegularFont.Do(func() {
-		srirachaRegularFont, err = opentype.Parse(srirachaRegular)
-	})
+func Image(name string) (*ebiten.Image, error) {
+	b, err := fs.ReadFile(assets, name)
 	if err != nil {
 		return nil, err
 	}
-
-	face, err = opentype.NewFace(srirachaRegularFont, opts)
-	return
+	img, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(b))
+	return img, err
 }
 
-func Idle() (img *ebiten.Image, err error) {
-	loadIdle.Do(func() {
-		idleImg, err = bytesToImage(idle)
-	})
+func Mp3Stream(name string) (*mp3.Stream, error) {
+	b, err := fs.ReadFile(assets, name)
 	if err != nil {
 		return nil, err
 	}
-
-	img = idleImg
-
-	return
+	return mp3.DecodeWithoutResampling(bytes.NewReader(b))
 }
 
-func GreenPlatform1Fg() (img *ebiten.Image, err error) {
-	loadGreenPlatformFg.Do(func() {
-		greenPlatformFg, err = bytesToImage(greenPlatformGrass)
-	})
+func FontFace(name string, opts *opentype.FaceOptions) (font.Face, error) {
+	b, err := fs.ReadFile(assets, name)
 	if err != nil {
 		return nil, err
 	}
-
-	img = greenPlatformFg
-
-	return
-}
-
-func GreenPlatform1Bg() (img *ebiten.Image, err error) {
-	loadGreenPlatformBg.Do(func() {
-		greenPlatformBg = ebiten.NewImage(1920, 1080)
-
-		var img *ebiten.Image
-
-		img, err = bytesToImage(greenPlatformSky)
-		if err != nil {
-			return
-		}
-		greenPlatformBg.DrawImage(img, nil)
-
-		img, err = bytesToImage(greenPlatformClouds)
-		if err != nil {
-			return
-		}
-		greenPlatformBg.DrawImage(img, nil)
-
-		img, err = bytesToImage(greenPlatformTrees)
-		if err != nil {
-			return
-		}
-		greenPlatformBg.DrawImage(img, nil)
-	})
+	font, err := opentype.Parse(b)
 	if err != nil {
 		return nil, err
 	}
-
-	img = greenPlatformBg
-
-	return
-}
-
-func GreenPlatform1Sky() (*ebiten.Image, error) {
-	return bytesToImage(greenPlatformSky)
-}
-
-func IntroMask() (*ebiten.Image, error) {
-	return bytesToImage(introMask)
-}
-
-func bytesToImage(b []byte) (img *ebiten.Image, err error) {
-	img, _, err = ebitenutil.NewImageFromReader(bytes.NewReader(b))
-	return
+	return opentype.NewFace(font, opts)
 }

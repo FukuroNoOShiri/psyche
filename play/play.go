@@ -33,6 +33,7 @@ type scene struct {
 	idleReversedImg  *utils.ImageWithOptions
 	greenPlatformImg *utils.ImageWithOptions
 	bg               *utils.ImageWithOptions
+	rock1Img          *utils.ImageWithOptions
 }
 
 var Scene = &scene{}
@@ -41,7 +42,7 @@ var _ game.Scene = Scene
 func (s *scene) Init() error {
 	s.space = resolv.NewSpace(1920, 1080, 16, 16)
 
-	s.space.Add(resolv.NewObject(0, 1080-184, 1920, 100, "platform"))
+	s.space.Add(resolv.NewObject(0, 1080-184, 1920-773, 100, "platform"))
 	s.space.Add(resolv.NewObject(0, 0, 16, 1080, "wall"))
 
 	s.player = resolv.NewObject(200, 1080-400, 95, 100)
@@ -67,12 +68,13 @@ func (s *scene) Init() error {
 	}
 	colorm.DrawImage(s.idleReversedImg.Image, s.idleImg.Image, c, nil)
 
-	img, err = assets.Image("GreenPlatform1-grass.png")
+	img, err = assets.Image("GreenPlatform1-grass1.png")
 	if err != nil {
 		return err
 	}
 	s.greenPlatformImg = &utils.ImageWithOptions{
 		Image: img,
+		Options: &ebiten.DrawImageOptions{},
 	}
 
 	s.bg = &utils.ImageWithOptions{
@@ -88,11 +90,20 @@ func (s *scene) Init() error {
 		return err
 	}
 	s.bg.Image.DrawImage(img, nil)
-	img, err = assets.Image("GreenPlatform1-trees.png")
+	img, err = assets.Image("BGtrees.png")
 	if err != nil {
 		return err
 	}
 	s.bg.Image.DrawImage(img, nil)
+
+    img, err = assets.Image("rock1.png")
+	if err != nil {
+		return err
+	}
+	s.rock1Img = &utils.ImageWithOptions{
+		Image: img,
+		Options: &ebiten.DrawImageOptions{},
+	}
 
 	return nil
 }
@@ -113,8 +124,9 @@ func (s *scene) Draw(screen *ebiten.Image) {
 	}
 	playerImg.Options.GeoM.Translate(s.player.X, s.player.Y)
 	playerImg.Draw(screen)
-
+    s.rock1Img.Options.GeoM.Apply(1080-171, 70)
 	s.greenPlatformImg.Draw(screen)
+	s.rock1Img.Draw(screen)
 }
 
 func (s *scene) Update() error {

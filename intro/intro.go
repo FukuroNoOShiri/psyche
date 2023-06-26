@@ -12,18 +12,18 @@ import (
 	"golang.org/x/image/font/opentype"
 
 	"github.com/FukuroNoOShiri/psyche/assets"
+	"github.com/FukuroNoOShiri/psyche/beam"
 	"github.com/FukuroNoOShiri/psyche/game"
 	"github.com/FukuroNoOShiri/psyche/tasks"
-	"github.com/FukuroNoOShiri/psyche/utils"
 )
 
-const beamScale = 4
+const beamScale = 2
 
 type scene struct {
 	Next game.Scene
 
 	background *ebiten.Image
-	beam       *utils.ImageWithOptions
+	beam       *beam.Beam
 
 	textColor color.Color
 	textFace  font.Face
@@ -49,16 +49,13 @@ func (s *scene) Init() error {
 	}
 	s.background.DrawImage(img, nil)
 
-	img, err = assets.Image("Idle.png")
+	beam, err := beam.New()
 	if err != nil {
 		return err
 	}
-	s.beam = &utils.ImageWithOptions{
-		Image:   img,
-		Options: &ebiten.DrawImageOptions{},
-	}
+	s.beam = beam
 	s.beam.Options.GeoM.Scale(beamScale, beamScale)
-	s.beam.Options.GeoM.Translate((1920.0-float64(s.beam.Image.Bounds().Dx())*beamScale)/2, (1080.0-float64(s.beam.Image.Bounds().Dy())*beamScale)/2)
+	s.beam.Options.GeoM.Translate((1920.0-float64(s.beam.Bounds().Dx())*beamScale)/2, (1080.0-float64(s.beam.Bounds().Dy())*beamScale)/2)
 
 	s.textColor = color.RGBA{84, 137, 169, 0}
 
@@ -104,6 +101,10 @@ func (s *scene) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		game.Tasks.Cancel("intro")
 		return game.SetScene(s.Next)
+	}
+
+	if err := s.beam.Update(); err != nil {
+		return err
 	}
 
 	return nil

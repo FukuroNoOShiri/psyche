@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	//go:embed *.jpg *.png *.mp3 *.ttf
+	//go:embed *.jpg *.png *.mp3 *.ttf flying standing
 	assets embed.FS
 )
 

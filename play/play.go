@@ -2,11 +2,11 @@ package play
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/solarlune/resolv"
 
 	"github.com/FukuroNoOShiri/psyche/assets"
+	"github.com/FukuroNoOShiri/psyche/beam"
 	"github.com/FukuroNoOShiri/psyche/game"
 	"github.com/FukuroNoOShiri/psyche/tasks"
 	"github.com/FukuroNoOShiri/psyche/utils"
@@ -22,15 +22,13 @@ const (
 type scene struct {
 	space *resolv.Space
 
-	player     *resolv.Object
-	dx         float64
-	dy         float64
-	facingLeft bool
-	jumping    bool
-	reversed   bool
+	player   *resolv.Object
+	dx       float64
+	dy       float64
+	jumping  bool
+	reversed bool
 
-	idleImg          *utils.ImageWithOptions
-	idleReversedImg  *utils.ImageWithOptions
+	beam             *beam.Beam
 	greenPlatformImg *utils.ImageWithOptions
 	bg               *utils.ImageWithOptions
 }
@@ -49,25 +47,13 @@ func (s *scene) Init() error {
 
 	s.dy = fallSpeed
 
-	img, err := assets.Image("Idle.png")
+	beam, err := beam.New()
 	if err != nil {
 		return err
 	}
-	s.idleImg = &utils.ImageWithOptions{
-		Image:   img,
-		Options: &ebiten.DrawImageOptions{},
-	}
+	s.beam = beam
 
-	var c colorm.ColorM
-
-	c.ChangeHSV(-2.8, 1.5, 1)
-	s.idleReversedImg = &utils.ImageWithOptions{
-		Image:   ebiten.NewImage(s.idleImg.Image.Bounds().Dx(), s.idleImg.Image.Bounds().Dy()),
-		Options: &ebiten.DrawImageOptions{},
-	}
-	colorm.DrawImage(s.idleReversedImg.Image, s.idleImg.Image, c, nil)
-
-	img, err = assets.Image("GreenPlatform1-grass.png")
+	img, err := assets.Image("GreenPlatform1-grass.png")
 	if err != nil {
 		return err
 	}
@@ -100,19 +86,10 @@ func (s *scene) Init() error {
 func (s *scene) Draw(screen *ebiten.Image) {
 	s.bg.Draw(screen)
 
-	var playerImg *utils.ImageWithOptions
-	if s.reversed {
-		playerImg = s.idleReversedImg
-	} else {
-		playerImg = s.idleImg
-	}
-	playerImg.Options.GeoM.Reset()
-	if s.facingLeft {
-		playerImg.Options.GeoM.Scale(-1, 1)
-		playerImg.Options.GeoM.Translate(95, 0)
-	}
-	playerImg.Options.GeoM.Translate(s.player.X, s.player.Y)
-	playerImg.Draw(screen)
+	s.beam.Options.GeoM.Reset()
+	s.beam.Options.GeoM.Scale(0.53, 0.53)
+	s.beam.Options.GeoM.Translate(s.player.X, s.player.Y)
+	s.beam.Draw(screen)
 
 	s.greenPlatformImg.Draw(screen)
 }
@@ -120,16 +97,17 @@ func (s *scene) Draw(screen *ebiten.Image) {
 func (s *scene) Update() error {
 	if l, r := ebiten.IsKeyPressed(ebiten.KeyLeft), ebiten.IsKeyPressed(ebiten.KeyRight); l && !r {
 		s.dx = -5.0
-		s.facingLeft = true
+		s.beam.SetFacingLeft(true)
 	} else if r && !l {
 		s.dx = 5.0
-		s.facingLeft = false
+		s.beam.SetFacingLeft(false)
 	} else {
 		s.dx = 0
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		s.reversed = !s.reversed
+		s.beam.SetReversed(s.reversed)
 	}
 
 	if collision := s.player.Check(s.dx, 0, "wall"); collision != nil {
@@ -161,6 +139,9 @@ func (s *scene) Update() error {
 	s.player.X += s.dx
 
 	s.player.Update()
+	if err := s.beam.Update(); err != nil {
+		return err
+	}
 
 	return nil
 }

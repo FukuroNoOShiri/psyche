@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/colorm"
 
 	"github.com/FukuroNoOShiri/psyche/assets"
 	"github.com/FukuroNoOShiri/psyche/tasks"
@@ -13,12 +14,14 @@ import (
 type Beam struct {
 	standingHead *ebiten.Image
 	standingTail []*ebiten.Image
-	standingOpts *ebiten.DrawImageOptions
+	standingOpts *colorm.DrawImageOptions
+	colorm       *colorm.ColorM
 
 	tasks tasks.Tasks
 
 	tailIndex  int
 	facingLeft bool
+	reversed   bool
 	dirty      bool
 
 	img *ebiten.Image
@@ -44,7 +47,9 @@ func New() (*Beam, error) {
 		b.standingTail[i] = img
 	}
 
-	b.standingOpts = &ebiten.DrawImageOptions{}
+	b.standingOpts = &colorm.DrawImageOptions{}
+
+	b.colorm = &colorm.ColorM{}
 
 	b.tasks.Add(tasks.Tick(10, func() error {
 		b.tailIndex++
@@ -65,14 +70,8 @@ func (b *Beam) Draw(dst *ebiten.Image) {
 	if b.dirty {
 		b.img.Clear()
 
-		b.standingOpts.GeoM.Reset()
-		if b.facingLeft {
-			b.standingOpts.GeoM.Scale(-1, 1)
-			b.standingOpts.GeoM.Translate(244, 0)
-		}
-
-		b.img.DrawImage(b.standingHead, b.standingOpts)
-		b.img.DrawImage(b.standingTail[b.tailIndex], b.standingOpts)
+		colorm.DrawImage(b.img, b.standingHead, *b.colorm, b.standingOpts)
+		colorm.DrawImage(b.img, b.standingTail[b.tailIndex], *b.colorm, b.standingOpts)
 
 		b.dirty = false
 	}
@@ -93,6 +92,29 @@ func (b *Beam) SetFacingLeft(facingLeft bool) {
 		return
 	}
 	b.facingLeft = facingLeft
+
+	if b.facingLeft {
+		b.standingOpts.GeoM.Scale(-1, 1)
+		b.standingOpts.GeoM.Translate(244, 0)
+	} else {
+		b.standingOpts.GeoM.Reset()
+	}
+
+	b.dirty = true
+}
+
+func (b *Beam) SetReversed(reversed bool) {
+	if reversed == b.reversed {
+		return
+	}
+	b.reversed = reversed
+
+	if b.reversed {
+		b.colorm.ChangeHSV(-2.8, 1.5, 1)
+	} else {
+		b.colorm.Reset()
+	}
+
 	b.dirty = true
 }
 

@@ -104,6 +104,10 @@ func (s *scene) Init() error {
 		Image: img,
 		Options: &ebiten.DrawImageOptions{},
 	}
+    s.greenPlatformImg.Options.GeoM.Translate(0, 1080-160)
+    s.rock1Img.Options.GeoM.Scale(3.0, 3.0)
+    s.rock1Img.Options.GeoM.Translate(70, 1080-180)
+
 
 	return nil
 }
@@ -124,9 +128,9 @@ func (s *scene) Draw(screen *ebiten.Image) {
 	}
 	playerImg.Options.GeoM.Translate(s.player.X, s.player.Y)
 	playerImg.Draw(screen)
-    s.rock1Img.Options.GeoM.Apply(1080-171, 70)
+    s.rock1Img.Draw(screen)
 	s.greenPlatformImg.Draw(screen)
-	s.rock1Img.Draw(screen)
+
 }
 
 func (s *scene) Update() error {

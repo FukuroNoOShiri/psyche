@@ -87,8 +87,7 @@ func (s *scene) Draw(screen *ebiten.Image) {
 	s.bg.Draw(screen)
 
 	s.beam.Options.GeoM.Reset()
-	s.beam.Options.GeoM.Scale(0.53, 0.53)
-	s.beam.Options.GeoM.Translate(s.player.X, s.player.Y)
+	s.beam.Options.GeoM.Translate(s.player.X, s.player.Y) // hitbox translation : X-38 - Y-47
 	s.beam.Draw(screen)
 
 	s.greenPlatformImg.Draw(screen)

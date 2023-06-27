@@ -59,7 +59,7 @@ func New() (*Beam, error) {
 	}))
 
 	b.dirty = true
-	b.img = ebiten.NewImage(244, 235)
+	b.img = ebiten.NewImage(129, 125)
 
 	b.Options = &ebiten.DrawImageOptions{}
 

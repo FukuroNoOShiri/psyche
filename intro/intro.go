@@ -17,7 +17,7 @@ import (
 	"github.com/FukuroNoOShiri/psyche/tasks"
 )
 
-const beamScale = 2
+const beamScale = 4
 
 type scene struct {
 	Next game.Scene
